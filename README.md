@@ -40,8 +40,9 @@ Furthermore follwing services need to be installed or setup:
 For the configuration details an .env needs to be set up with following relevant information: 
 
 ###Recommender Package
-AURA_DB_URI = "bolt://localhost:xxxx"  - normally 7687
-AURA_DB_USERNAME = "neo4j"
+
+AURA_DB_URI = "bolt://localhost:xxxx"  - normally 7687  
+AURA_DB_USERNAME = "neo4j"  
 AURA_DB_PWD = "anypassword"
 
 ### Policy Manager package
