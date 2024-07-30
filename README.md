@@ -46,40 +46,38 @@ AURA_DB_USERNAME = "neo4j"
 AURA_DB_PWD = "anypassword"
 
 ### Policy Manager package
-MongoDB_URI = mongodb+srv://lukaskleinl:xxx@cluster.xxxx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster - Looks something like this if setup in cloud
+MongoDB_URI = mongodb+srv://lukaskleinl:xxx@cluster.xxxx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster - Looks something like this if setup in cloud  
 If setup locally the correct URI needs to be provided
 
 ### Compliance Authorization package - information can be found in OKTA
-URL for Okta: https://manage.auth0.com/dashboard/eu/dev-lpidbb8cgvdmuria/
-
-AUTH0_CLIENT_ID=xxxx
-AUTH0_CLIENT_SECRET=xxx
-AUTH0_DOMAIN=dev-lpidbb8cgvdmuria.eu.auth0.com
-APP_SECRET_KEY=ALongRandomlyGeneratedString
-
-URL_Recommender = http://127.0.0.1:2001/
-URL_Company_Control_Store = http://127.0.0.1:2002/
+URL for Okta: https://manage.auth0.com/dashboard/eu/dev-lpidbb8cgvdmuria/  
+AUTH0_CLIENT_ID=xxxx  
+AUTH0_CLIENT_SECRET=xxx  
+AUTH0_DOMAIN=dev-lpidbb8cgvdmuria.eu.auth0.com  
+APP_SECRET_KEY=ALongRandomlyGeneratedString  
+  
+URL_Recommender = http://127.0.0.1:2001/  
+URL_Company_Control_Store = http://127.0.0.1:2002/  
 URL_Chat = http://127.0.0.1:2003/
 
 
 ### Compliance LLM Recommender package
-Here a Open API Key was used for the embedding for the vector search. 
+Here a Open API Key was used for the embedding for the vector search.   
 Another embedding like Ollama can also be used. An Open API Key is not needed in this case. 
-The key can be found in the webpage after login to OpenAI
+The key can be found in the webpage after login to OpenAI  
 
-OPENAI_API_KEY = xxxx
-MongoDB_URI = mongodb+srv://lukaskleinl:xxx@cluster.xxxx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster
+OPENAI_API_KEY = xxxx  
+MongoDB_URI = mongodb+srv://lukaskleinl:xxx@cluster.xxxx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster  
 
 
 Afterwards run follwing commands with the given ports:
-
-Authorization and routing - flask run --host=0.0.0.0 --port=2000  
-GDPR exploration - flask run --host=0.0.0.0 --port=2001
-Company Controls Manager - flask run --host=0.0.0.0 --port=2002
+  
+Authorization and routing - flask run --host=0.0.0.0 --port=2000    
+GDPR exploration - flask run --host=0.0.0.0 --port=2001  
+Company Controls Manager - flask run --host=0.0.0.0 --port=2002  
 LLM recommender - flask run --host=0.0.0.0 --port=2003
 
 ### Prerequisites
-
 
 - MongoDB with Atlas Vector Search
 - Neo4j instance
