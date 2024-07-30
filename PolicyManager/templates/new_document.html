@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>New Document</h2>
+<form method="post" enctype="multipart/form-data">
+    <label for="GUIDELINE">
+        <input type="radio" id="GUIDELINE" name="option" value="{{ Options.GUIDELINE.value }}" checked> GUIDELINE
+    </label><br>
+    <label for="POLICY">
+        <input type="radio" id="POLICY" name="option" value="{{ Options.POLICY.value }}"> POLICY
+    </label><br><br>
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" id="title" name="title" required>
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="file">File</label>
+        <input type="file" class="form-control-file" id="file" name="file">
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Overview</a>
+</form>
+{% endblock %}

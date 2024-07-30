@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Controls</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Compliance Information System</a>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-2">
+                <h5>Policies</h5>
+                {% if policies %}
+                <ul class="list-group">
+                    {% for doc_id, doc in policies.items() %}
+                        <li class="list-group-item">
+                            <a href="{{ url_for('view_document', doc_id=doc_id) }}">{{ doc.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <h5>Guidelines</h5>
+                {% if guidelines %}
+                <ul class="list-group">
+                    {% for doc_id, doc in guidelines.items() %}
+                        <li class="list-group-item">
+                            <a href="{{ url_for('view_document', doc_id=doc_id) }}">{{ doc.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            <div class="col-9">
+                {% block content %}{% endblock %}
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

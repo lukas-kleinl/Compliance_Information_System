@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GDPR Graph Visualization</title>
+    <!-- Library for visualizing the Graph - Cytoscope-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.20.0/cytoscape.min.js"></script>
+    <!-- Bootstrap library for pre defined styles-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        #cy {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        #node-description {
+            width: 80%;
+            margin-left: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        .collapsible {
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #eee;
+            margin-bottom: 5px;
+        }
+
+        #color-legend {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        .color-box {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Compliance Information System</a>
+    </nav>
+    <div class="container-fluid">
+         <div class="row">
+            <div class="col-3">
+                <div class="mb-3">
+                    <label for="filterSelect">Select Filter:</label>
+                    <select id="filterSelect">
+                        {% for filter in valid_filters %}
+                            <option value="{{ filter }}">{{ filter }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="nodeIdInput">Enter Node ID:</label>
+                    <input class="mb-4" type="text" id="nodeIdInput">
+                    <button id="fetchByIdBtn" class="btn btn-primary">Fetch</button>
+                </div>
+                <div id="color-legend">
+                    <h4>Color Legend</h4>
+                    <div><span class="color-box" style="background-color: #ff7f0e;"></span>Chapter</div>
+                    <div><span class="color-box" style="background-color: #2ca02c;"></span>Citation</div>
+                    <div><span class="color-box" style="background-color: #1f77b4;"></span>Point</div>
+                    <div><span class="color-box" style="background-color: #8c564b;"></span>Section</div>
+                    <div><span class="color-box" style="background-color: #9467bd;"></span>Article</div>
+                    <div><span class="color-box" style="background-color: #7f7f7f;"></span>Other</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div id="cy"></div>
+            </div>
+         </div>
+    </div>
+    <div class="container-fluid">
+         <div class="row">
+             <div class="col-12">
+                 <div id="node-description">
+                     <h3>Node Description</h3>
+                 <div id="node-content"></div>
+             </div>
+             </div>
+         </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const colorMapping = {
+                'Chapter': '#ff7f0e',
+                'Citation': '#2ca02c',
+                'Point': '#1f77b4',
+                'Article': '#9467bd',
+                'Section': '#8c564b',
+                'default': '#7f7f7f'
+            };
+
+            const cy = cytoscape({
+                container: document.getElementById('cy'),
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'label': 'data(id)',
+                            'background-color': function (ele) {
+                                const labels = ele.data('labels');
+                                for (let label of labels) {
+                                    if (colorMapping[label]) {
+                                        return colorMapping[label];
+                                    }
+                                }
+                                return colorMapping['default'];
+                            },
+                            'color': '#fff',
+                            'text-valign': 'center',
+                            'text-halign': 'center'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 2,
+                            'line-color': '#ccc',
+                            'target-arrow-color': '#ccc',
+                            'target-arrow-shape': 'triangle',
+                            'curve-style': 'bezier'
+                        }
+                    }
+                ]
+            });
+
+            function updateGraph(filter) {
+                fetch(`/graph?filter=${filter}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const nodes = data.nodes.map(node => ({
+                            data: {
+                                id: node.id,
+                                labels: node.labels,
+                                ...node.properties
+                            }
+                        }));
+
+                        const edges = data.relationships.map(edge => ({
+                            data: {
+                                id: edge.id,
+                                source: edge.startNode,
+                                target: edge.endNode,
+                                label: edge.type,
+                                ...edge.properties
+                            }
+                        }));
+
+                        cy.elements().remove(); // Remove existing elements
+                        cy.add(nodes);
+                        cy.add(edges);
+
+                        cy.layout({
+                            name: 'cose',
+                            fit: true,
+                            padding: 30
+                        }).run();
+                    });
+            }
+
+            // Load the relationships of the node
+            function getNodeRelationships(nodeId) {
+                return fetch(`/node_relationships?node_id=${nodeId}`)
+                    .then(response => response.json());
+            }
+
+            //Functionality to display all the node details with its relationships
+            function displayNodeDetails(node) {
+                // basic information of the node
+                const nodeData = node.data();
+                const descriptionDiv = document.getElementById('node-content');
+                let descriptionContent = `<strong>ID:</strong> ${nodeData.id}<br>`;
+                descriptionContent += `<strong>Labels:</strong> ${nodeData.labels.join(', ')}<br>`;
+                if (nodeData.definition) {
+                    descriptionContent += `<strong>Description:</strong> ${nodeData.definition}<br>`;
+                }
+                descriptionContent += `<strong>Properties:</strong><br>`;
+                for (const [key, value] of Object.entries(nodeData)) {
+                    if (key !== 'id' && key !== 'label' && key !== 'definition' && key !== 'labels') {
+                        descriptionContent += `<strong>${key}:</strong> ${value}<br>`;
+                    }
+                }
+
+                //load the realtionships
+                getNodeRelationships(nodeData.id).then(relationshipsData => {
+                    descriptionContent += `<h4>Incoming Relationships</h4>`;
+                    relationshipsData.incoming.forEach(rel => {
+                        descriptionContent += `<div class="collapsible">${rel.startNode} <strong>${rel.type}</strong> </div>`;
+                        descriptionContent += `<div class="content">`;
+                        for (const [key, value] of Object.entries(rel.properties)) {
+                            if (key !== 'id' && key !== 'label' && key !== 'definition' && key !== 'labels') {
+                                descriptionContent += `<strong>${key}:</strong> ${value}<br>`;
+                            }
+                        }
+                        descriptionContent += `</div>`;
+                    });
+
+                    descriptionContent += `<h4>Outgoing Relationships</h4>`;
+                    relationshipsData.outgoing.forEach(rel => {
+                        descriptionContent += `<div class="collapsible"><strong>${rel.type}</strong> ${rel.endNode}</div>`;
+                        descriptionContent += `<div class="content">`;
+                        for (const [key, value] of Object.entries(rel.properties)) {
+                            if (key !== 'id' && key !== 'label' && key !== 'definition' && key !== 'labels') {
+                                descriptionContent += `<strong>${key}:</strong> ${value}<br>`;
+                            }
+                        }
+                        descriptionContent += `</div>`;
+                    });
+
+                    // Update the description div
+                    descriptionDiv.innerHTML = descriptionContent;
+
+                    // Add collapsible functionality
+                    const coll = document.getElementsByClassName("collapsible");
+                    for (let i = 0; i < coll.length; i++) {
+                        coll[i].addEventListener("click", function () {
+                            this.nextElementSibling.classList.toggle("content");
+                            this.nextElementSibling.style.display = this.nextElementSibling.style.display === "block" ? "none" : "block";
+                        });
+                    }
+                });
+            }
+
+            // Get the select element
+            const filterSelect = document.getElementById('filterSelect');
+
+            // Event listener to update graph when filter selection changes
+            filterSelect.addEventListener('change', function (event) {
+                const selectedFilter = event.target.value;
+                updateGraph(selectedFilter);
+            });
+
+            // Initialize graph with default filter
+            updateGraph(filterSelect.value);
+
+            // Event listener to display node description and relationships when a node is clicked
+            cy.on('tap', 'node', function (event) {
+                const node = event.target;
+                displayNodeDetails(node);
+            });
+
+            // Event listener for fetching node by ID
+            document.getElementById('fetchByIdBtn').addEventListener('click', function () {
+                const nodeId = document.getElementById('nodeIdInput').value;
+                if (nodeId) {
+                    fetch(`/graph?id=${nodeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const nodes = data.nodes.map(node => ({
+                                data: {
+                                    id: node.id,
+                                    labels: node.labels,
+                                    ...node.properties
+                                }
+                            }));
+
+                            const edges = data.relationships.map(edge => ({
+                                data: {
+                                    id: edge.id,
+                                    source: edge.startNode,
+                                    target: edge.endNode,
+                                    label: edge.type,
+                                    ...edge.properties
+                                }
+                            }));
+
+                            cy.elements().remove(); // Remove existing elements
+                            cy.add(nodes);
+                            cy.add(edges);
+
+                            cy.layout({
+                                name: 'cose',
+                                fit: true,
+                                padding: 30
+                            }).run();
+                        });
+                }
+            });
+        });
+    </script>
+  </div>
+</body>
+</html>

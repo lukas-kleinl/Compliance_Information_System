@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block content %}
+{% if guideline_data %}
+<h2 class="mb-4">Detailed information of the guideline</h2>
+<h3 class="mb-3">Title</h3>
+<p>{{ guideline_data["title"] }}</p>
+<h3 class="mb-3">Description</h3>
+<p>{{ guideline_data["description"] }}</p>
+{% endif %}
+{% if policy_data %}
+<h2 class="mb-3">Detailed information of the policy</h2>
+<h3 class="mb-3">Title</h3>
+<p>{{ policy_data["title"] }}</p>
+<h3 class="mb-3">Description</h3>
+<p>{{ policy_data["description"] }}</p>
+{% endif %}
+<h4 class="mb-2">Latest document</h4>
+<table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Version</th>
+            <th>File</th>
+            <th>Last Updated</th>
+        </tr>
+        </thead>
+        <tbody>
+                <tr>
+                    <td>{{ files["name"] }}</td>
+                    <td>{{ files["version"] }}</td>
+                    <td><a href="{{ url_for('file', file_id=files["file"]) }}">{{ files["file"] }}</a></td>
+                    <td>{{ files["last_updated"] }}</td>
+                </tr>
+        </tbody>
+</table>
+
+<table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Versions</th>
+            <th>File</th>
+        </tr>
+        </thead>
+        <tbody>
+                {% for file in files["old_files"] %}
+                <tr>
+
+                        <td>{{ loop.index0 }}</td>
+                        <td><a href="{{ url_for('file', file_id=file) }}">{{ file }}</a></td>
+                </tr>
+                {% endfor %}
+        </tbody>
+</table>
+<a href="{{ url_for('edit_document', doc_id=doc_id) }}" class="btn btn-primary">Edit</a>
+<form action="{{ url_for('delete_document', doc_id=doc_id) }}" method="post" style="display:inline;">
+    <button type="submit" class="btn btn-danger">Delete</button>
+</form>
+<a href="{{ url_for('index') }}" class="btn btn-secondary">Back</a>
+{% endblock %}

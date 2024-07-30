@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Compliance Information System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .header .topics span {
+            cursor: pointer;
+            padding: 10px;
+            transition: background-color 0.3s;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
+            overflow-x: auto;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/">Compliance Information System</a>
+        </nav>
+        <div class = "container-fluid">
+        <div class="row">
+            <div class="col-2">
+                    <p><a href="/graph_home" id="Graph">Explore the GDPR</a></p>
+                    <p><a href="/chat_bool" id="Chat">Chat</a></p>
+                    <p><a href="/search_bool" id="Search">Search</a></p>
+                    <p><a href="/company_controls" id="Company Controls">Company Controls</a></p>
+            </div>
+                {% if session %}
+                <div>
+                    <div class="col-10">
+                        <img src="{{ session.userinfo.picture }}" alt="Profile Picture" class="profile-pic">
+                        <h1>Welcome {{ session.userinfo.name }}!</h1>
+                        <p><a href="/logout" id="LogoutButton">Logout</a></p>
+                    </div>
+                    <div class="col-10">
+                        {% if chat %}
+                        <div class="col-6">
+                            <label for="WordInput">Enter question:</label>
+                            <input type="text" id="chat">
+                            <p><a href="/chat" id="get_answers">Get answers</a></p>
+                        </div>
+                        <h2>Query:</h2>
+                        <div><pre>{{ query }}</pre></div>
+                        <h2>Result:</h2>
+                        <div><pre>{{ result }}</pre></div>
+                        {% endif %}
+                        {% if search %}
+                        <div class="col-6">
+                            <label for="WordInput">Enter search term:</label>
+                            <label for="query">
+                            </label><input type="text" id="query">
+                            <p><a href="/query" id="get_answers">Get answers</a></p>
+                        </div>
+                        <h2>Query:</h2>
+                        <div><pre>{{ query }}</pre></div>
+                        <h2>Result:</h2>
+                        <div><pre>{{ result }}</pre></div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-10">
+                    <h1 id="guest">Welcome Guest</h1>
+                    <p><a href="/login" id="LoginBtn">Login</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <script>
+        // Event listener for MongoDB Atlas Search
+        document.getElementById('query').addEventListener('input', function() {
+            const queryText = this.value;
+            const getAnswersLink = document.getElementById('get_answers');
+            getAnswersLink.href = `/query?question=${encodeURIComponent(queryText)}`;
+        });
+        </script>
+        <script>
+        //Event listener of the generative AI functionality
+        document.getElementById('chat').addEventListener('input', function() {
+            const queryText = this.value;
+            const getAnswersLink = document.getElementById('get_answers');
+            getAnswersLink.href = `/chat?question=${encodeURIComponent(queryText)}`;
+        });
+        </script>
+</body>
+</html>

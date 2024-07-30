@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Edit Document</h2>
+<form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="title">Title</label>
+        {% if guideline_data %}
+        <input type="text" class="form-control" id="title" name="title" value="{{ guideline_data.title }}">
+        {% endif %}
+        {% if policy_data %}
+        <input type="text" class="form-control" id="title" name="title" value="{{ policy_data.title }}">
+        {% endif %}
+    </div>
+    <div class="form-group">
+        <label for="content">Content</label>
+        {% if guideline_data %}
+        <input type="text" class="form-control" id="description" name="description" value="{{ guideline_data.description }}">
+        {% endif %}
+        {% if policy_data %}
+            <label for="description"></label>
+            <input type="text" class="form-control" id="description" name="description" value="{{ policy_data.description }}">
+        {% endif %}
+    </div>
+    <div class="form-group">
+        <label for="file">File</label>
+        <input type="file" class="form-control-file" id="file" name="file">
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+
+    <a href="{{ url_for('view_document', doc_id=doc_id) }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
